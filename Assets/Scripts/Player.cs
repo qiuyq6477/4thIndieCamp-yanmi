@@ -13,17 +13,29 @@ public enum MOVEDIR
 public class Player
 {
     private List<Block> blocks = new List<Block>();
+    private List<Block> templist = new List<Block>();
 
     public void AddBlock(Block block)
     {
-        blocks.Add(block);
+        if(!templist.Contains(block))
+            templist.Add(block);
     }
-
     public void RemoveBlock(Block block)
     {
         blocks.Remove(block);
     }
 
+    public void Rotate(MOVEDIR dir)
+    {
+        if (dir == MOVEDIR.Left)
+        {
+            
+        }
+        else if (dir == MOVEDIR.Right)
+        {
+            
+        }
+    }
     public void MoveBlock(MOVEDIR dir)
     {
         blocks.Sort((block, block1) =>
@@ -53,5 +65,9 @@ public class Player
         {
             blocks[i].Move(dir);
         }
+        GameManager.Instance.UpdateDebugInfo();
+        
+        blocks.AddRange(templist);
+        templist.Clear();
     }
 }
