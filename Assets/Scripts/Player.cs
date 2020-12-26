@@ -10,11 +10,12 @@ public enum MOVEDIR
 }
 
 
-public class Player
+public class Player : MonoBehaviour
 {
     private List<Block> blocks = new List<Block>();
     private List<Block> templist = new List<Block>();
-
+    private int angle = 0;
+    private Vector3 pos;
     public void AddBlock(Block block)
     {
         if(!templist.Contains(block))
@@ -24,17 +25,18 @@ public class Player
     {
         blocks.Remove(block);
     }
-
-    public void Rotate(MOVEDIR dir)
+    public void RemoveAllBlock()
     {
-        if (dir == MOVEDIR.Left)
+        foreach (var block in blocks)
         {
-            
+            RemoveBlock(block);
+            Destroy(block.gameObject);
         }
-        else if (dir == MOVEDIR.Right)
-        {
-            
-        }
+    }
+    public void Rotate(int a, Vector3 p)
+    {
+        angle = a;
+        pos = p;
     }
     public void MoveBlock(MOVEDIR dir)
     {
@@ -69,5 +71,28 @@ public class Player
         
         blocks.AddRange(templist);
         templist.Clear();
+
+        if (angle != 0)
+        {
+            var rotate = true;
+            foreach (var block in blocks)
+            {
+                if (!block.checkRotation(angle, pos))
+                {
+                    rotate = false;
+                    break;
+                }
+            }
+
+            if (rotate)
+            {
+                foreach (var block in blocks)
+                {
+                    StartCoroutine(block.Rotate(angle, pos));
+                }
+            }
+            //checkcollision
+            angle = 0;
+        }
     }
 }

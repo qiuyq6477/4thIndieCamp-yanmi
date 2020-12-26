@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public enum BLOCKTYPE{
@@ -18,6 +20,14 @@ public enum BLOCKTYPE{
     Gas,
 }
 
+[Serializable]
+public struct LevelInfo
+{
+    public string filename;
+    public BlockInfo[] blockInfos;
+}
+
+[Serializable]
 public struct BlockInfo
 {
     public BLOCKTYPE type;
@@ -40,22 +50,22 @@ public class GameManager : MonoBehaviour
             width = 1,
             height = 1,
         },
-        // new BlockInfo()
-        // {
-        //     type = BLOCKTYPE.Main,
-        //     row = 4,
-        //     col = 4,
-        //     width = 1,
-        //     height = 1,
-        // },
-        // new BlockInfo()
-        // {
-        //     type = BLOCKTYPE.Main,
-        //     row = 6,
-        //     col = 6,
-        //     width = 1,
-        //     height = 1,
-        // },
+        new BlockInfo()
+        {
+            type = BLOCKTYPE.Holl,
+            row = 4,
+            col = 4,
+            width = 1,
+            height = 1,
+        },
+        new BlockInfo()
+        {
+            type = BLOCKTYPE.RotateLeft,
+            row = 6,
+            col = 6,
+            width = 1,
+            height = 1,
+        },
         new BlockInfo()
         {
             type = BLOCKTYPE.Wall,
@@ -76,6 +86,14 @@ public class GameManager : MonoBehaviour
         {
             type = BLOCKTYPE.Horizontal,
             row = 7,
+            col = 2,
+            width = 2,
+            height = 1,
+        },
+        new BlockInfo()
+        {
+            type = BLOCKTYPE.Horizontal,
+            row = 9,
             col = 2,
             width = 2,
             height = 1,
@@ -105,11 +123,17 @@ public class GameManager : MonoBehaviour
     };
     
     private const string mapdir = "map/";
+    public GameObject background;
+    public GameObject backgrid;
+    public GameObject MenuPanel;
+    public GameObject LevelPanel;
+    public GameObject GamePanel;
+    public GameObject NextLevelPanel;
+    
     public const int mapWidth = 10;
     public const int mapHeight = 19;
-    private int[] data = new int[mapWidth * mapHeight];
+    private int[] data;
 
-    private Transform[] mMap;
     public Transform debug;
     public Transform mapContainer;
     public float piexlPerUnit = 100;
@@ -117,15 +141,97 @@ public class GameManager : MonoBehaviour
     public float moveUnit;
     private Player player;
     private List<Block> otherBlocks = new List<Block>();
+    public int currentLevel;
+    private List<LevelInfo> levelDatas = new List<LevelInfo>();
     private void Awake()
     {
         Instance = this;
         
-        player = new Player();
-
         moveUnit = blockSize / piexlPerUnit;
         blockSize = blockSize / piexlPerUnit;
 
+        background.SetActive(false);
+        backgrid.SetActive(false);
+        
+        MenuPanel.SetActive(true);
+        LevelPanel.SetActive(false);
+        GamePanel.SetActive(false);
+        NextLevelPanel.SetActive(false);
+        
+        var textAssets = Resources.LoadAll<TextAsset>("");
+        foreach (var textAsset in textAssets)
+        {
+            LevelInfo info = JsonUtility.FromJson<LevelInfo>(textAsset.text);
+            levelDatas.Add(info);
+        }
+
+    }
+
+    public void StartGame()
+    {
+        
+        MenuPanel.SetActive(false);
+        LevelSelect();
+    }
+    public void LevelSelect()
+    {
+        LevelPanel.SetActive(true);
+        for (int i = 0; i < levelDatas.Count; i++)
+        {
+            int index = i;
+            GameObject go = Instantiate(Resources.Load<GameObject>("LevelSelectItem"));
+            go.transform.SetParent(LevelPanel.transform);
+            var text = go.transform.GetComponentInChildren<Text>();
+            var button = go.transform.GetComponent<Button>();
+
+            text.text = levelDatas[i].filename;
+            button.onClick.AddListener(() =>
+            {
+                background.SetActive(true);
+                backgrid.SetActive(true);
+                LevelPanel.SetActive(false);
+                GamePanel.SetActive(true);
+                currentLevel = index;
+                Init();
+            });
+        }
+    }
+    public void StartGameEditor()
+    {
+        SceneManager.LoadScene("Editor");
+    }
+
+    public void NextLevel()
+    {
+        NextLevelPanel.SetActive(true);
+        if (currentLevel + 1 >= levelDatas.Count)
+        {
+            return;
+        }
+        currentLevel++;
+        // rawData = info.blockInfos;
+        Init();
+    }
+    public void Init()
+    {
+        if (player != null)
+        {
+            player.RemoveAllBlock();
+            Destroy(player.gameObject);
+        }
+
+        foreach (var block in otherBlocks)
+        {
+            Destroy(block.gameObject);
+        }
+        otherBlocks.Clear();
+        
+        data = new int[mapWidth * mapHeight];
+        rawData = levelDatas[currentLevel].blockInfos;
+
+        GameObject p = Instantiate(Resources.Load<GameObject>("Player"));
+        player = p.GetComponent<Player>();
+        
         for (int i = 0; i < rawData.Length; i++)
         {
             BlockInfo info = rawData[i];
@@ -157,8 +263,7 @@ public class GameManager : MonoBehaviour
 
         InitDebugInfo();
     }
-
-    private List<Text> debugText = new List<Text>();
+    private Text[] debugText = new Text[mapWidth * mapHeight];
     public void InitDebugInfo()
     {
         for (int i = 0; i < data.Length; i++)
@@ -166,18 +271,22 @@ public class GameManager : MonoBehaviour
             ArrayIndexToCoordinate(i, out int row, out int col);
             if (debug)
             {
+                if (debugText[i])
+                {
+                    Destroy(debugText[i].gameObject);
+                }
                 GameObject go = Instantiate(Resources.Load<GameObject>("debug"));
                 go.transform.SetParent(debug);
                 Text text = go.GetComponent<Text>();
                 text.text = "<color=#00ffffff><size=30>" + data[i] + "</size></color>\n<size=20>" + row + "," + col + ","+i+
                             "</size>";
-                debugText.Add(text);
+                debugText[i] = text;
             }
         }
     }
     public void UpdateDebugInfo()
     {
-        for (int i = 0; i < debugText.Count; i++)
+        for (int i = 0; i < debugText.Length; i++)
         {
             ArrayIndexToCoordinate(i, out int row, out int col);
             if (debug)
@@ -228,7 +337,7 @@ public class GameManager : MonoBehaviour
         return false;
     }
 
-    public List<Block> CheckCollision(Block playerBlock)
+    public List<Block> CheckCollision(Block playerBlock, List<BLOCKTYPE> exclude = null)
     {
         List<Block> col = new List<Block>();
         for (int j = 0; j < otherBlocks.Count; j++)
@@ -238,9 +347,44 @@ public class GameManager : MonoBehaviour
                 col.Add(otherBlocks[j]);
             }
         }
+
+        if (exclude != null)
+        {
+            col.RemoveAll((block) =>
+            {
+                return exclude.Contains(block.type);
+            });
+        }
         return col;
     }
 
+    public List<Block> CheckCollision2(Block playerBlock, List<BLOCKTYPE> exclude = null)
+    {
+        List<Block> col = new List<Block>();
+        for (int j = 0; j < otherBlocks.Count; j++)
+        {
+            if (playerBlock.checkSideCollision2(otherBlocks[j]))
+            {
+                col.Add(otherBlocks[j]);
+            }
+        }
+
+        if (exclude != null)
+        {
+            col.RemoveAll((block) =>
+            {
+                return exclude.Contains(block.type);
+            });
+        }
+        return col;
+    }
+
+    public bool IsGameOver()
+    {
+        
+
+        return true;
+    }
     public void RemoveBlock(Block block)
     {
         otherBlocks.Remove(block);

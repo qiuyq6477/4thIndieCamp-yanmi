@@ -1,0 +1,1 @@
+{"filename":"level3.txt","blockInfos":[{"type":4,"row":11,"col":1,"width":2,"height":1},{"type":6,"row":11,"col":7,"width":1,"height":1},{"type":7,"row":7,"col":7,"width":1,"height":1},{"type":5,"row":6,"col":3,"width":1,"height":2},{"type":3,"row":3,"col":6,"width":1,"height":1},{"type":2,"row":3,"col":4,"width":1,"height":1},{"type":1,"row":1,"col":1,"width":1,"height":1}]}
