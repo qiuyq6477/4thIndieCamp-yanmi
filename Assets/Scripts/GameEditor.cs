@@ -22,6 +22,8 @@ public class GameEditor : MonoBehaviour
     public float piexlPerUnit = 100;
     public float blockSize = 90;
 
+    private bool isDelet;
+    Dictionary<int, GameObject> golist = new Dictionary<int, GameObject>();
     private void Awake()
     {
         blockSize = blockSize / piexlPerUnit;
@@ -36,6 +38,17 @@ public class GameEditor : MonoBehaviour
     public void OnBackBtnClick()
     {
         SceneManager.LoadScene("Main");
+    }
+
+    public void OnDeleteBlockBtnClick()
+    {
+        if (hold)
+        {
+            Destroy(hold.gameObject);
+            hold = null;
+        }
+
+        isDelet = true;
     }
     public void OnSaveBtnClick()
     {
@@ -69,6 +82,7 @@ public class GameEditor : MonoBehaviour
             RaycastHit2D hitInfo = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(pos), Vector2.zero);
             if(hitInfo)
             {
+                isDelet = false;
                 var name = hitInfo.transform.gameObject.name;
                 Debug.Log(name);
                 if (hold != null)
@@ -94,138 +108,166 @@ public class GameEditor : MonoBehaviour
         {
             if (IsValidPosition(hold.transform.localPosition))
             {
-                BlockInfo info = new BlockInfo();
                 PositionToCoordinate(hold.transform.localPosition, out int row, out int col);
-                var substring = hold.name.Substring(0, hold.name.Length - 7);
-                switch (substring)
+                if (!isDelet)
                 {
-                    case "MainBlock":
+                    BlockInfo info = new BlockInfo();
+                    var substring = hold.name.Substring(0, hold.name.Length - 7);
+                    switch (substring)
                     {
-                        info = new BlockInfo()
+                        case "MainBlock":
                         {
-                            type = BLOCKTYPE.Main,
-                            row = row,
-                            col = col,
-                            width = 1,
-                            height = 1,
-                        };
-                    }
-                        break;
-                    case "HollBlock":
-                    {
-                        info = new BlockInfo()
+                            info = new BlockInfo()
+                            {
+                                type = BLOCKTYPE.Main,
+                                row = row,
+                                col = col,
+                                width = 1,
+                                height = 1,
+                            };
+                        }
+                            break;
+                        case "HollBlock":
                         {
-                            type = BLOCKTYPE.Holl,
-                            row = row,
-                            col = col,
-                            width = 1,
-                            height = 1,
-                        };
-                    }
-                        break;
-                    case "WallBlock":
-                    {
-                        info = new BlockInfo()
+                            info = new BlockInfo()
+                            {
+                                type = BLOCKTYPE.Holl,
+                                row = row,
+                                col = col,
+                                width = 1,
+                                height = 1,
+                            };
+                        }
+                            break;
+                        case "WallBlock":
                         {
-                            type = BLOCKTYPE.Wall,
-                            row = row,
-                            col = col,
-                            width = 1,
-                            height = 1,
-                        };
-                    }
-                        break;
-                    case "HorizontalBlock":
-                    {
-                        info = new BlockInfo()
+                            info = new BlockInfo()
+                            {
+                                type = BLOCKTYPE.Wall,
+                                row = row,
+                                col = col,
+                                width = 1,
+                                height = 1,
+                            };
+                        }
+                            break;
+                        case "HorizontalBlock":
                         {
-                            type = BLOCKTYPE.Horizontal,
-                            row = row,
-                            col = col,
-                            width = 2,
-                            height = 1,
-                        };
-                    }
-                        break;
-                    case "VerticalBlock":
-                    {
-                        info = new BlockInfo()
+                            info = new BlockInfo()
+                            {
+                                type = BLOCKTYPE.Horizontal,
+                                row = row,
+                                col = col,
+                                width = 2,
+                                height = 1,
+                            };
+                        }
+                            break;
+                        case "VerticalBlock":
                         {
-                            type = BLOCKTYPE.Vertical,
-                            row = row,
-                            col = col,
-                            width = 1,
-                            height = 2,
-                        };
-                    }
-                        break;
-                    case "RotateLeftBlock":
-                    {
-                        info = new BlockInfo()
+                            info = new BlockInfo()
+                            {
+                                type = BLOCKTYPE.Vertical,
+                                row = row,
+                                col = col,
+                                width = 1,
+                                height = 2,
+                            };
+                        }
+                            break;
+                        case "RotateLeftBlock":
                         {
-                            type = BLOCKTYPE.RotateLeft,
-                            row = row,
-                            col = col,
-                            width = 1,
-                            height = 1,
-                        };
-                    }
-                        break;
-                    case "RotateRightBlock":
-                    {
-                        info = new BlockInfo()
+                            info = new BlockInfo()
+                            {
+                                type = BLOCKTYPE.RotateLeft,
+                                row = row,
+                                col = col,
+                                width = 1,
+                                height = 1,
+                            };
+                        }
+                            break;
+                        case "RotateRightBlock":
                         {
-                            type = BLOCKTYPE.RotateRight,
-                            row = row,
-                            col = col,
-                            width = 1,
-                            height = 1,
-                        };
-                    }
-                        break;
-                    case "WaterBlock":
-                    {
-                        info = new BlockInfo()
+                            info = new BlockInfo()
+                            {
+                                type = BLOCKTYPE.RotateRight,
+                                row = row,
+                                col = col,
+                                width = 1,
+                                height = 1,
+                            };
+                        }
+                            break;
+                        case "WaterBlock":
                         {
-                            type = BLOCKTYPE.Water,
-                            row = row,
-                            col = col,
-                            width = 1,
-                            height = 1,
-                        };
-                    }
-                        break;
-                    case "FatBlock":
-                    {
-                        info = new BlockInfo()
+                            info = new BlockInfo()
+                            {
+                                type = BLOCKTYPE.Water,
+                                row = row,
+                                col = col,
+                                width = 1,
+                                height = 1,
+                            };
+                        }
+                            break;
+                        case "FatBlock":
                         {
-                            type = BLOCKTYPE.Fat,
-                            row = row,
-                            col = col,
-                            width = 2,
-                            height = 2,
-                        };
-                    }
-                        break;
-                    case "GasBlock":
-                    {
-                        info = new BlockInfo()
+                            info = new BlockInfo()
+                            {
+                                type = BLOCKTYPE.Fat,
+                                row = row,
+                                col = col,
+                                width = 2,
+                                height = 2,
+                            };
+                        }
+                            break;
+                        case "GasBlock":
                         {
-                            type = BLOCKTYPE.Gas,
-                            row = row,
-                            col = col,
-                            width = 1,
-                            height = 1,
-                        };
+                            info = new BlockInfo()
+                            {
+                                type = BLOCKTYPE.Gas,
+                                row = row,
+                                col = col,
+                                width = 1,
+                                height = 1,
+                            };
+                        }
+                            break;
                     }
-                        break;
+
+                    rawData.Add(info);
+
+                    var go = Instantiate(Resources.Load<GameObject>(hold.name.Substring(0, hold.name.Length - 7)));
+                    go.transform.SetParent(mapContainer);
+                    go.transform.localPosition = hold.transform.localPosition;
+                    CoordinateToArrayIndex(row, col, out int index);
+                    golist[index] = go;
                 }
+                
+            }
+        }
+        else
+        {
+            Vector3 pos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1);
+            PositionToCoordinate(mapContainer.InverseTransformPoint(Camera.main.ScreenToWorldPoint(pos)), out int row, out int col);
+            int i = 0;
+            for (; i < rawData.Count; i++)
+            {
+                if (rawData[i].col == col && rawData[i].row == row)
+                {
+                    break;
+                }
+            }
 
-                rawData.Add(info);
-
-                var go = Instantiate(Resources.Load<GameObject>(hold.name.Substring(0, hold.name.Length - 7)));
-                go.transform.SetParent(mapContainer);
-                go.transform.localPosition = hold.transform.localPosition;
+            if (i != rawData.Count)
+            {
+                CoordinateToArrayIndex(row, col, out int index);
+                Destroy(golist[index].gameObject);
+                golist.Remove(index);
+                
+                rawData.RemoveAt(i);
             }
         }
     }
