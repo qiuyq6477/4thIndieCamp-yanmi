@@ -129,7 +129,7 @@ public class GameManager : MonoBehaviour
     public GameObject LevelPanel;
     public GameObject GamePanel;
     public GameObject NextLevelPanel;
-    
+    public GameObject content;
     public const int mapWidth = 10;
     public const int mapHeight = 19;
     private int[] data;
@@ -173,6 +173,32 @@ public class GameManager : MonoBehaviour
         MenuPanel.SetActive(false);
         LevelSelect();
     }
+
+    public void BackToLevelSelect()
+    {
+        background.SetActive(false);
+        backgrid.SetActive(false);
+        
+        MenuPanel.SetActive(false);
+        LevelPanel.SetActive(true);
+        GamePanel.SetActive(false);
+        NextLevelPanel.SetActive(false);
+        mapContainer.gameObject.SetActive(false);
+        if (debug) debug.gameObject.SetActive(false);
+        player.CanMove = false;
+    }
+
+    public void BackToMainMenu()
+    {
+        background.SetActive(false);
+        backgrid.SetActive(false);
+        
+        MenuPanel.SetActive(true);
+        LevelPanel.SetActive(false);
+        GamePanel.SetActive(false);
+        NextLevelPanel.SetActive(false);
+    }
+    
     public void LevelSelect()
     {
         LevelPanel.SetActive(true);
@@ -180,7 +206,7 @@ public class GameManager : MonoBehaviour
         {
             int index = i;
             GameObject go = Instantiate(Resources.Load<GameObject>("LevelSelectItem"));
-            go.transform.SetParent(LevelPanel.transform);
+            go.transform.SetParent(content.transform);
             var text = go.transform.GetComponentInChildren<Text>();
             var button = go.transform.GetComponent<Button>();
 
@@ -203,7 +229,14 @@ public class GameManager : MonoBehaviour
 
     public void NextLevel()
     {
+        player.CanMove = false;
         NextLevelPanel.SetActive(true);
+        
+    }
+
+    public void GoToNextLevel()
+    {
+        NextLevelPanel.SetActive(false);
         if (currentLevel + 1 >= levelDatas.Count)
         {
             return;
@@ -214,6 +247,8 @@ public class GameManager : MonoBehaviour
     }
     public void Init()
     {
+        mapContainer.gameObject.SetActive(true);
+        if (debug) debug.gameObject.SetActive(true);
         if (player != null)
         {
             player.RemoveAllBlock();
@@ -381,9 +416,41 @@ public class GameManager : MonoBehaviour
 
     public bool IsGameOver()
     {
-        
+        List<Vector3> list = player.GetAllPoint();
+        List<Vector3> list2 = new List<Vector3>();
+        foreach (var otherBlock in otherBlocks)
+        {
+            if (otherBlock.type == BLOCKTYPE.Holl)
+            {
+                list2.AddRange(otherBlock.GetAllPoint());
+            }
+        }
 
-        return true;
+        if (list.Count < list2.Count)
+        {
+            return false;
+        }
+
+        int count = 0;
+        foreach (var point in list)
+        {
+            PositionToCoordinate(point, out int row1, out int col1);
+            foreach (var point2 in list2)
+            {
+                PositionToCoordinate(point2, out int row2, out int col2);
+                if (row1 == row2 && col1 == col2)
+                {
+                    count++;
+                }
+            }
+        }
+
+        if (list2.Count == count)
+        {
+            return true;
+        }
+
+        return false;
     }
     public void RemoveBlock(Block block)
     {

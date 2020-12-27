@@ -16,6 +16,21 @@ public class Player : MonoBehaviour
     private List<Block> templist = new List<Block>();
     private int angle = 0;
     private Vector3 pos;
+    
+    List<Vector3> pointList = new List<Vector3>();
+
+    public bool CanMove = true;
+    public List<Vector3> GetAllPoint()
+    {
+        pointList.Clear();
+        foreach (var block in blocks)
+        {
+            pointList.AddRange(block.GetAllPoint());
+        }
+
+        return pointList;
+    }
+    
     public void AddBlock(Block block)
     {
         if(!templist.Contains(block))
@@ -29,9 +44,9 @@ public class Player : MonoBehaviour
     {
         foreach (var block in blocks)
         {
-            RemoveBlock(block);
             Destroy(block.gameObject);
         }
+        blocks.Clear();
     }
     public void Rotate(int a, Vector3 p)
     {
@@ -40,6 +55,7 @@ public class Player : MonoBehaviour
     }
     public void MoveBlock(MOVEDIR dir)
     {
+        if (!CanMove) return;
         blocks.Sort((block, block1) =>
         {
             switch (dir)
@@ -93,6 +109,11 @@ public class Player : MonoBehaviour
             }
             //checkcollision
             angle = 0;
+        }
+
+        if (GameManager.Instance.IsGameOver())
+        {
+            GameManager.Instance.NextLevel();
         }
     }
 }

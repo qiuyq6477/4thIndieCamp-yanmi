@@ -16,7 +16,20 @@ public class Block : MonoBehaviour
     [HideInInspector] 
     public BLOCKTYPE type;
     
-    List<Vector3> blockPos = new List<Vector3>();
+    List<Vector3> pointList = new List<Vector3>();
+    public List<Vector3> GetAllPoint()
+    {
+        pointList.Clear();
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                Vector3 currentPos = transform.localPosition + GameManager.Instance.blockSize * i * transform.right +  GameManager.Instance.blockSize * j * transform.up;
+                pointList.Add(currentPos);
+            }
+        }
+        return pointList;
+    }
 
     public void Init(Player p, BLOCKTYPE t, int w, int h)
     {
@@ -137,7 +150,7 @@ public class Block : MonoBehaviour
             }break;
         }
 
-        var isvalid = checkPositionValid(dir, checkLength, delta);
+        var isvalid = checkPositionValid(dir, checkLength, delta, out List<Vector3> blockPos);
         if (isvalid)
         {
             for (int i = 0; i < blockPos.Count; i++)
@@ -252,19 +265,11 @@ public class Block : MonoBehaviour
         GameManager.Instance.UpdateDebugInfo();
     }
 
-    bool checkPositionValid(MOVEDIR dir, int checkLength, Vector3 delta)
+    bool checkPositionValid(MOVEDIR dir, int checkLength, Vector3 delta, out List<Vector3> blockPos)
     {
         var size = GameManager.Instance.blockSize;
         //设置内部方块位置
-        blockPos.Clear();
-        for (int i = 0; i < width; i++)
-        {
-            for (int j = 0; j < height; j++)
-            {
-                Vector3 currentPos = transform.localPosition + size * i * transform.right +  size * j * transform.up;
-                blockPos.Add(currentPos);
-            }
-        }
+        blockPos = GetAllPoint();
         //根据方向排序, 优先检测哪些位置
         blockPos.Sort((pos, pos1) =>
         {
