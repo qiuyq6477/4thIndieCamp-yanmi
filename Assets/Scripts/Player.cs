@@ -10,7 +10,7 @@ public enum MOVEDIR
 }
 
 
-public class Player : MonoBehaviour
+public class Player 
 {
     private List<Block> blocks = new List<Block>();
     private List<Block> templist = new List<Block>();
@@ -44,7 +44,7 @@ public class Player : MonoBehaviour
     {
         foreach (var block in blocks)
         {
-            Destroy(block.gameObject);
+            GameObject.Destroy(block.gameObject);
         }
         blocks.Clear();
     }
@@ -106,7 +106,7 @@ public class Player : MonoBehaviour
                 AudioManager.PlayAudioEffectA(Resources.Load<AudioClip>("Audio/旋转"));
                 foreach (var block in blocks)
                 {
-                    StartCoroutine(block.Rotate(angle, pos));
+                    GameManager.Instance.StartCoroutine(block.Rotate(angle, pos));
                 }
             }
             //checkcollision

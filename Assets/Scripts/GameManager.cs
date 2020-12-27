@@ -141,6 +141,8 @@ public class GameManager : MonoBehaviour
     public float moveUnit;
     private Player player;
     private List<Block> otherBlocks = new List<Block>();
+    private List<Vector3> targetBlocks = new List<Vector3>();
+    
     public int currentLevel;
     private List<LevelInfo> levelDatas = new List<LevelInfo>();
     private void Awake()
@@ -286,7 +288,6 @@ public class GameManager : MonoBehaviour
         if (player != null)
         {
             player.RemoveAllBlock();
-            Destroy(player.gameObject);
         }
 
         foreach (var block in otherBlocks)
@@ -297,9 +298,8 @@ public class GameManager : MonoBehaviour
         
         data = new int[mapWidth * mapHeight];
         rawData = levelDatas[currentLevel].blockInfos;
-
-        GameObject p = Instantiate(Resources.Load<GameObject>("Player"));
-        player = p.GetComponent<Player>();
+        targetBlocks.Clear();
+        player = new Player();
         
         for (int i = 0; i < rawData.Length; i++)
         {
@@ -324,8 +324,12 @@ public class GameManager : MonoBehaviour
             {
                 player.AddBlock(block);
             }
-            else
+            else 
             {
+                if (info.type == BLOCKTYPE.Holl)
+                {
+                    targetBlocks.AddRange(block.GetAllPoint());
+                }
                 otherBlocks.Add(block);
             }
         }
@@ -381,9 +385,9 @@ public class GameManager : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.RightArrow)) {
             player.MoveBlock(MOVEDIR.Right);
         }
-        if (Input.GetKeyDown(KeyCode.UpArrow)) {
-            player.MoveBlock(MOVEDIR.Up);
-        }
+        // if (Input.GetKeyDown(KeyCode.UpArrow)) {
+        //     player.MoveBlock(MOVEDIR.Up);
+        // }
         if (Input.GetKeyDown(KeyCode.DownArrow)) {
             player.MoveBlock(MOVEDIR.Down);
         }
@@ -451,16 +455,7 @@ public class GameManager : MonoBehaviour
     public bool IsGameOver()
     {
         List<Vector3> list = player.GetAllPoint();
-        List<Vector3> list2 = new List<Vector3>();
-        foreach (var otherBlock in otherBlocks)
-        {
-            if (otherBlock.type == BLOCKTYPE.Holl)
-            {
-                list2.AddRange(otherBlock.GetAllPoint());
-            }
-        }
-
-        if (list.Count < list2.Count)
+        if (list.Count < targetBlocks.Count)
         {
             return false;
         }
@@ -469,7 +464,7 @@ public class GameManager : MonoBehaviour
         foreach (var point in list)
         {
             PositionToCoordinate(point, out int row1, out int col1);
-            foreach (var point2 in list2)
+            foreach (var point2 in targetBlocks)
             {
                 PositionToCoordinate(point2, out int row2, out int col2);
                 if (row1 == row2 && col1 == col2)
@@ -479,7 +474,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        if (list2.Count == count)
+        if (targetBlocks.Count == count)
         {
             return true;
         }
@@ -521,5 +516,12 @@ public class GameManager : MonoBehaviour
         PositionToCoordinate(pos, out int row, out int col);
         CoordinateToArrayIndex(row, col, out int index);
         data[index] = (int)type;
+    }
+
+    public BLOCKTYPE GetMapData(Vector3 pos)
+    {
+        PositionToCoordinate(pos, out int row, out int col);
+        CoordinateToArrayIndex(row, col, out int index);
+        return (BLOCKTYPE)data[index];
     }
 }
