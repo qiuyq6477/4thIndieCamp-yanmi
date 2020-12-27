@@ -124,7 +124,6 @@ public class GameManager : MonoBehaviour
     
     private const string mapdir = "map/";
     public GameObject background;
-    public GameObject backgrid;
     public GameObject MenuPanel;
     public GameObject LevelPanel;
     public GameObject GamePanel;
@@ -156,7 +155,6 @@ public class GameManager : MonoBehaviour
         blockSize = blockSize / piexlPerUnit;
 
         background.SetActive(false);
-        backgrid.SetActive(false);
         
         MenuPanel.SetActive(true);
         LevelPanel.SetActive(false);
@@ -293,7 +291,6 @@ public class GameManager : MonoBehaviour
     {
         AudioManager.PlayAudioEffectA(Resources.Load<AudioClip>("Audio/点击按钮"));
         background.SetActive(false);
-        backgrid.SetActive(false);
         
         MenuPanel.SetActive(false);
         LevelPanel.SetActive(true);
@@ -307,7 +304,6 @@ public class GameManager : MonoBehaviour
     {
         AudioManager.PlayAudioEffectA(Resources.Load<AudioClip>("Audio/点击按钮"));
         background.SetActive(false);
-        backgrid.SetActive(false);
         
         MenuPanel.SetActive(true);
         LevelPanel.SetActive(false);
@@ -331,11 +327,10 @@ public class GameManager : MonoBehaviour
             var text = go.transform.GetComponentInChildren<Text>();
             var button = go.transform.GetComponentInChildren<Button>();
             go.transform.localScale = Vector3.one;
-            text.text = levelDatas[i].filename;
+            text.text = levelDatas[i].filename.Substring(0, levelDatas[i].filename.Length-4);
             button.onClick.AddListener(() =>
             {
                 background.SetActive(true);
-                backgrid.SetActive(true);
                 LevelPanel.SetActive(false);
                 GamePanel.SetActive(true);
                 currentLevel = index;
@@ -415,7 +410,14 @@ public class GameManager : MonoBehaviour
             {
                 if (info.type == BLOCKTYPE.Holl)
                 {
-                    targetBlocks.AddRange(block.GetAllPoint());
+                    var points = block.GetAllPoint();
+                    foreach (var point in points)
+                    {
+                        if (!targetBlocks.Contains(point))
+                        {
+                            targetBlocks.Add(point);
+                        }
+                    }
                 }
                 otherBlocks.Add(block);
             }
