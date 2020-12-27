@@ -145,6 +145,9 @@ public class GameManager : MonoBehaviour
     
     public int currentLevel;
     private List<LevelInfo> levelDatas = new List<LevelInfo>();
+    
+    Stack<Operation> operations = new Stack<Operation>();
+    
     private void Awake()
     {
         Instance = this;
@@ -192,6 +195,90 @@ public class GameManager : MonoBehaviour
         {
             LevelInfo info = JsonUtility.FromJson<LevelInfo>(textAsset.text);
             levelDatas.Add(info);
+        }
+    }
+
+    public void ResetGame()
+    {
+        Init();
+    }
+
+    public void DoOperation(MOVEDIR op, int angle, Vector3 pos)
+    {
+        operations.Push(new Operation()
+        {
+            dir = op,
+            angle = angle,
+            pos = pos,
+        });
+    }
+    public void DoOperation(MOVEDIR op)
+    {
+        operations.Push(new Operation()
+        {
+            dir = op,
+            angle = 0,
+            pos = Vector3.zero,
+        });
+    }
+    public void UndoOperation()
+    {
+        if (operations.Count == 0) return;
+        player.undo = true;
+        var op = operations.Pop();
+        if (op.dir == MOVEDIR.RotateLeft || op.dir == MOVEDIR.RotateRight)
+        {
+            foreach (var block in player.blocks)
+            {
+                GameManager.Instance.StartCoroutine(block.Rotate(-op.angle, op.pos));
+                GameManager.Instance.StartCoroutine(delaymove(op));
+            }
+        }
+        else
+        {
+            switch (op.dir)
+            {
+                case MOVEDIR.Left:
+                {
+                    player.MoveBlock(MOVEDIR.Right);
+                }break;
+                case MOVEDIR.Right:
+                {
+                    player.MoveBlock(MOVEDIR.Left);
+                }break;
+                case MOVEDIR.Up:
+                {
+                    player.MoveBlock(MOVEDIR.Down);
+                }break;
+                case MOVEDIR.Down:
+                {
+                    player.MoveBlock(MOVEDIR.Up);
+                }break;
+            }
+        }
+    }
+
+    IEnumerator delaymove(Operation op)
+    {
+        yield return new WaitForSeconds(0.3f);
+        switch (op.dir)
+        {
+            case MOVEDIR.Left:
+            {
+                player.MoveBlock(MOVEDIR.Right);
+            }break;
+            case MOVEDIR.Right:
+            {
+                player.MoveBlock(MOVEDIR.Left);
+            }break;
+            case MOVEDIR.Up:
+            {
+                player.MoveBlock(MOVEDIR.Down);
+            }break;
+            case MOVEDIR.Down:
+            {
+                player.MoveBlock(MOVEDIR.Up);
+            }break;
         }
     }
 
@@ -322,7 +409,7 @@ public class GameManager : MonoBehaviour
             block.Init(player, info.type, info.width, info.height);
             if(info.type == BLOCKTYPE.Main)
             {
-                player.AddBlock(block);
+                player.AddBlockImmeditaly(block);
             }
             else 
             {
