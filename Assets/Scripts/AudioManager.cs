@@ -62,7 +62,7 @@ using System.Collections.Generic;
             // }
             // else
             // {
-                AudioBackgroundVolumns = 1;
+                AudioBackgroundVolumns = 0.5f;
             // }
             // _AudioSource_BackgroundAudio.volume = AudioBackgroundVolumns;
             // if (PlayerPrefs.GetFloat("AudioEffectVolumns") >= 0)
