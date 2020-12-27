@@ -157,6 +157,33 @@ public class GameManager : MonoBehaviour
         LevelPanel.SetActive(false);
         GamePanel.SetActive(false);
         NextLevelPanel.SetActive(false);
+
+        string path = Application.persistentDataPath + "/Resources";
+        if (Directory.Exists(path))
+        {
+            DirectoryInfo direction = new DirectoryInfo(path);
+            FileInfo[] files = direction.GetFiles("*", SearchOption.AllDirectories);
+
+            for (int i = 0; i < files.Length; i++)
+            {
+                Debug.Log("Name:" + files[i].Name);
+                Debug.Log("FullName:" + files[i].FullName);
+                Debug.Log("DirectoryName:" + files[i].DirectoryName);
+                
+                StreamReader reader = new StreamReader(Application.persistentDataPath+"/Resources/"+files[i].Name, false);
+                try
+                {
+                    var text = reader.ReadToEnd();
+                    LevelInfo info = JsonUtility.FromJson<LevelInfo>(text);
+                    levelDatas.Add(info);
+                }
+                finally
+                {
+                    reader.Close();
+                    reader.Dispose();
+                }
+            }
+        }
         
         var textAssets = Resources.LoadAll<TextAsset>("");
         foreach (var textAsset in textAssets)
@@ -164,18 +191,18 @@ public class GameManager : MonoBehaviour
             LevelInfo info = JsonUtility.FromJson<LevelInfo>(textAsset.text);
             levelDatas.Add(info);
         }
-
     }
 
     public void StartGame()
     {
-        
+        AudioManager.PlayAudioEffectA(Resources.Load<AudioClip>("Audio/点击按钮"));
         MenuPanel.SetActive(false);
         LevelSelect();
     }
 
     public void BackToLevelSelect()
     {
+        AudioManager.PlayAudioEffectA(Resources.Load<AudioClip>("Audio/点击按钮"));
         background.SetActive(false);
         backgrid.SetActive(false);
         
@@ -184,12 +211,12 @@ public class GameManager : MonoBehaviour
         GamePanel.SetActive(false);
         NextLevelPanel.SetActive(false);
         mapContainer.gameObject.SetActive(false);
-        if (debug) debug.gameObject.SetActive(false);
         player.CanMove = false;
     }
 
     public void BackToMainMenu()
     {
+        AudioManager.PlayAudioEffectA(Resources.Load<AudioClip>("Audio/点击按钮"));
         background.SetActive(false);
         backgrid.SetActive(false);
         
@@ -201,6 +228,11 @@ public class GameManager : MonoBehaviour
     
     public void LevelSelect()
     {
+        AudioManager.PlayAudioEffectA(Resources.Load<AudioClip>("Audio/点击按钮"));
+        foreach (Transform t in content.transform)
+        {
+            Destroy(t.gameObject);
+        }
         LevelPanel.SetActive(true);
         for (int i = 0; i < levelDatas.Count; i++)
         {
@@ -208,8 +240,8 @@ public class GameManager : MonoBehaviour
             GameObject go = Instantiate(Resources.Load<GameObject>("LevelSelectItem"));
             go.transform.SetParent(content.transform);
             var text = go.transform.GetComponentInChildren<Text>();
-            var button = go.transform.GetComponent<Button>();
-
+            var button = go.transform.GetComponentInChildren<Button>();
+            go.transform.localScale = Vector3.one;
             text.text = levelDatas[i].filename;
             button.onClick.AddListener(() =>
             {
@@ -219,23 +251,26 @@ public class GameManager : MonoBehaviour
                 GamePanel.SetActive(true);
                 currentLevel = index;
                 Init();
+                AudioManager.PlayAudioEffectA(Resources.Load<AudioClip>("Audio/点击按钮"));
             });
         }
     }
     public void StartGameEditor()
     {
+        AudioManager.PlayAudioEffectA(Resources.Load<AudioClip>("Audio/点击按钮"));
         SceneManager.LoadScene("Editor");
     }
 
     public void NextLevel()
     {
+        AudioManager.PlayAudioEffectA(Resources.Load<AudioClip>("Audio/通关成功"));
         player.CanMove = false;
         NextLevelPanel.SetActive(true);
-        
     }
 
     public void GoToNextLevel()
     {
+        AudioManager.PlayAudioEffectA(Resources.Load<AudioClip>("Audio/点击按钮"));
         NextLevelPanel.SetActive(false);
         if (currentLevel + 1 >= levelDatas.Count)
         {
@@ -248,7 +283,6 @@ public class GameManager : MonoBehaviour
     public void Init()
     {
         mapContainer.gameObject.SetActive(true);
-        if (debug) debug.gameObject.SetActive(true);
         if (player != null)
         {
             player.RemoveAllBlock();
@@ -335,7 +369,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        AudioManager.PlayBackground(Resources.Load<AudioClip>("Audio/游戏中的背景音乐"));
     }
     
     // Update is called once per frame

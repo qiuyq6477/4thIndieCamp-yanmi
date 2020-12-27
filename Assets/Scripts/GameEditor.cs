@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -28,13 +27,12 @@ public class GameEditor : MonoBehaviour
     {
         blockSize = blockSize / piexlPerUnit;
     }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+#if UNITY_EDITOR
+    [UnityEditor.MenuItem("Assets/Open PersistentDataPath")]
+    static void Open(){
+        UnityEditor.EditorUtility.RevealInFinder(Application.persistentDataPath);
     }
-
+#endif
     public void OnBackBtnClick()
     {
         SceneManager.LoadScene("Main");
@@ -50,6 +48,7 @@ public class GameEditor : MonoBehaviour
 
         isDelet = true;
     }
+    
     public void OnSaveBtnClick()
     {
         var str = JsonUtility.ToJson(new LevelInfo()
@@ -57,7 +56,15 @@ public class GameEditor : MonoBehaviour
             filename = filename.text,
             blockInfos = rawData.ToArray(),
         });
-        StreamWriter writer = new StreamWriter(Application.dataPath+"/Resources/"+filename.text, false);
+        string path = "";
+#if UNITY_EDITOR
+        path = Application.dataPath+"/Resources";
+#else
+        path = Application.persistentDataPath+"/Resources";
+        if (!Directory.Exists(path))
+            Directory.CreateDirectory(path);
+#endif
+        StreamWriter writer = new StreamWriter(path+"/"+filename.text, false);
         try
         {
             writer.Write(str);
@@ -67,7 +74,9 @@ public class GameEditor : MonoBehaviour
             writer.Close();
             writer.Dispose();
         }
-        AssetDatabase.Refresh();
+#if UNITY_EDITOR
+        UnityEditor.AssetDatabase.Refresh();
+#endif
     }
     // Update is called once per frame
     void Update()

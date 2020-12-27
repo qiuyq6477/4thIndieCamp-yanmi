@@ -56,6 +56,7 @@ public class Player : MonoBehaviour
     public void MoveBlock(MOVEDIR dir)
     {
         if (!CanMove) return;
+        AudioManager.PlayAudioEffectA(Resources.Load<AudioClip>("Audio/移动"));
         blocks.Sort((block, block1) =>
         {
             switch (dir)
@@ -102,6 +103,7 @@ public class Player : MonoBehaviour
 
             if (rotate)
             {
+                AudioManager.PlayAudioEffectA(Resources.Load<AudioClip>("Audio/旋转"));
                 foreach (var block in blocks)
                 {
                     StartCoroutine(block.Rotate(angle, pos));
