@@ -325,7 +325,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   background: {fileID: 241447068}
-  backgrid: {fileID: 1596447753}
   MenuPanel: {fileID: 1313563631}
   LevelPanel: {fileID: 1910119191}
   GamePanel: {fileID: 706693624}
@@ -2139,14 +2138,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 70
+    m_Left: 170
     m_Right: 0
     m_Top: 21
     m_Bottom: 0
   m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 323.9, y: 128.3}
+  m_CellSize: {x: 224.84, y: 128.3}
   m_Spacing: {x: 80.8, y: 40.2}
   m_Constraint: 0
   m_ConstraintCount: 2
@@ -2808,7 +2807,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1910119192
 RectTransform:
   m_ObjectHideFlags: 0
