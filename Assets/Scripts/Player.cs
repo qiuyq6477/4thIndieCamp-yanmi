@@ -29,6 +29,10 @@ public class Player
 
     public bool CanMove = true;
     public bool undo = false;
+
+    private Vector3 lastRotatePos;
+    private bool lastRotate;
+    
     public List<Vector3> GetAllPoint()
     {
         pointList.Clear();
@@ -135,30 +139,39 @@ checkCollision:
         
         if (angle != 0)
         {
-            var rotate = true;
-            foreach (var block in blocks)
+            if (!lastRotate || lastRotatePos != pos)
             {
-                if (!block.checkRotation(angle, pos))
-                {
-                    rotate = false;
-                    break;
-                }
-            }
-
-            if (rotate)
-            {
-                AudioManager.PlayAudioEffectA(Resources.Load<AudioClip>("Audio/旋转"));
+                var rotate = true;
                 foreach (var block in blocks)
                 {
-                    GameManager.Instance.StartCoroutine(block.Rotate(angle, pos));
+                    if (!block.checkRotation(angle, pos))
+                    {
+                        rotate = false;
+                        break;
+                    }
                 }
-                if(!undo)
-                    GameManager.Instance.DoOperation(angle>0?MOVEDIR.RotateRight : MOVEDIR.RotateLeft, angle, pos);
+                lastRotate = rotate;
+                lastRotatePos = pos;
+                if (rotate)
+                {
+                    AudioManager.PlayAudioEffectA(Resources.Load<AudioClip>("Audio/旋转"));
+                    foreach (var block in blocks)
+                    {
+                        GameManager.Instance.StartCoroutine(block.Rotate(angle, pos));
+                    }
+                    if(!undo)
+                        GameManager.Instance.DoOperation(angle>0?MOVEDIR.RotateRight : MOVEDIR.RotateLeft, angle, pos);
+                    //checkcollision
+                    
+                }
             }
-            //checkcollision
+            
             angle = 0;
         }
-
+        else
+        {
+            lastRotate = false;
+        }
         if (GameManager.Instance.IsGameOver())
         {
             GameManager.Instance.NextLevel();
