@@ -98,9 +98,37 @@ public class Player
             blocks[i].Move(dir);
         }
         GameManager.Instance.UpdateDebugInfo();
-        
-        blocks.AddRange(templist);
-        templist.Clear();
+
+        if (templist.Count != 0)
+        {
+            var collionList = new List<Block>();
+            var waitCheck = new List<Block>(templist);
+            blocks.AddRange(templist);
+            templist.Clear();
+checkCollision:
+            foreach (var block in waitCheck)
+            {
+                var col = GameManager.Instance.CheckCollision(block);
+                for (int i = 0; i < col.Count; i++)
+                {
+                    if (col[i].type != BLOCKTYPE.Wall && col[i].type != BLOCKTYPE.Holl && col[i].type != BLOCKTYPE.RotateLeft && col[i].type != BLOCKTYPE.RotateRight)
+                    {
+                        GameManager.Instance.RemoveBlock(col[i]);
+                        collionList.Add(col[i]);
+                        col[i].transform.GetComponentInChildren<SpriteRenderer>().material =
+                            GameManager.Instance.activeBlock;
+                    }
+                }
+            }
+
+            if (collionList.Count != 0)
+            {
+                blocks.AddRange(collionList);
+                waitCheck.AddRange(collionList);
+                collionList.Clear();
+                goto checkCollision;
+            }
+        }
         
         if(!undo)
             GameManager.Instance.DoOperation(dir);

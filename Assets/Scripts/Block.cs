@@ -45,8 +45,6 @@ public class Block : MonoBehaviour
         GameManager.Instance.PositionToCoordinate(block.transform.localPosition, out int x2, out int y2);
         
         Vector2 left_bottom = new Vector2(x2, y2);
-        // Vector2 left_top = new Vector2(x2, y2+block.height-1);
-        // Vector2 right_bottom = new Vector2(x2+block.width-1, y2);
         Vector2 right_top = new Vector2(x2+block.temp_height-1, y2+block.temp_width-1);
         
         if (x >= left_bottom.x && x <= right_top.x && y >= left_bottom.y &&
@@ -86,15 +84,6 @@ public class Block : MonoBehaviour
                 }
             }
         }
-        // foreach (var pos in posList)
-        // {
-        //     GameManager.Instance.PositionToCoordinate(pos, out int x1, out int y1);
-        //     if (checkPointCollision(x1, y1, block))
-        //     {
-        //         return true;
-        //     }
-        // }
-                
         return false;
     }
     public bool checkSideCollision2(Block block)

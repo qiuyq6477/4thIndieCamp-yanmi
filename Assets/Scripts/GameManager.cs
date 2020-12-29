@@ -432,6 +432,33 @@ public class GameManager : MonoBehaviour
         }
 
         InitDebugInfo();
+        
+        var collionList = new List<Block>();
+        var waitCheck = new List<Block>(player.blocks);
+        checkCollision:
+        foreach (var block in waitCheck)
+        {
+            var col = CheckCollision(block);
+            for (int i = 0; i < col.Count; i++)
+            {
+                if (col[i].type != BLOCKTYPE.Wall && col[i].type != BLOCKTYPE.Holl && col[i].type != BLOCKTYPE.RotateLeft && col[i].type != BLOCKTYPE.RotateRight)
+                {
+                    RemoveBlock(col[i]);
+                    collionList.Add(col[i]);
+                    col[i].transform.GetComponentInChildren<SpriteRenderer>().material =
+                        activeBlock;
+                }
+            }
+        }
+
+        if (collionList.Count != 0)
+        {
+            player.blocks.AddRange(collionList);
+            waitCheck.AddRange(collionList);
+            collionList.Clear();
+            goto checkCollision;
+        }
+        
     }
     private Text[] debugText = new Text[mapWidth * mapHeight];
     public void InitDebugInfo()
