@@ -60,12 +60,13 @@ public class Block : MonoBehaviour
     public bool checkSideCollision(Block block)
     {
         var size = GameManager.Instance.blockSize;
-        int w = temp_width + 1;
-        int h = temp_height + 1;
+        int w = width + 1;
+        int h = height + 1;
         var localPosition = transform.localPosition;
-        localPosition += -transform.right * GameManager.Instance.blockSize;
-        localPosition += -transform.up * GameManager.Instance.blockSize;;
-        List<Vector3> posList = new List<Vector3>();
+        localPosition += -transform.right * GameManager.Instance.blockSize; 
+        GameManager.Instance.PositionToCoordinate(localPosition, out int x21, out int y21);
+        localPosition += -transform.up * GameManager.Instance.blockSize;
+        GameManager.Instance.PositionToCoordinate(localPosition, out int x2, out int y12);
         for (int i = 0; i <= w; i++)
         {
             for (int j = 0; j <= h; j++)
@@ -78,26 +79,29 @@ public class Block : MonoBehaviour
                     continue;
                 }
                 Vector3 currentPos = localPosition + size * i * transform.right +  size * j * transform.up;
-                posList.Add(currentPos);
+                GameManager.Instance.PositionToCoordinate(currentPos, out int x1, out int y1);
+                if (checkPointCollision(x1, y1, block))
+                {
+                    return true;
+                }
             }
         }
-
-        foreach (var pos in posList)
-        {
-            GameManager.Instance.PositionToCoordinate(pos, out int x1, out int y1);
-            if (checkPointCollision(x1, y1, block))
-            {
-                return true;
-            }
-        }
+        // foreach (var pos in posList)
+        // {
+        //     GameManager.Instance.PositionToCoordinate(pos, out int x1, out int y1);
+        //     if (checkPointCollision(x1, y1, block))
+        //     {
+        //         return true;
+        //     }
+        // }
                 
         return false;
     }
     public bool checkSideCollision2(Block block)
     {
         var size = GameManager.Instance.blockSize;
-        int w = temp_width;
-        int h = temp_height;
+        int w = width;
+        int h = height;
         var localPosition = transform.localPosition;
         List<Vector3> posList = new List<Vector3>();
         for (int i = 0; i < w; i++)
@@ -173,6 +177,8 @@ public class Block : MonoBehaviour
                 {
                     GameManager.Instance.RemoveBlock(col[i]);
                     player.AddBlock(col[i]);
+                    col[i].transform.GetComponentInChildren<SpriteRenderer>().material =
+                        GameManager.Instance.activeBlock;
                 }
 
                 if (col[i].type == BLOCKTYPE.RotateLeft)
@@ -225,7 +231,9 @@ public class Block : MonoBehaviour
     }
     public IEnumerator Rotate(int angle, Vector3 pos)
     {
+        GameManager.Instance.player.CanMove = false;
         yield return new WaitForSeconds(0.2f);
+        GameManager.Instance.player.CanMove = true;
         
         float size = GameManager.Instance.blockSize;
         for (int i = 0; i < width; i++)
@@ -242,17 +250,9 @@ public class Block : MonoBehaviour
         // transform.Rotate(Vector3.forward, angle, Space.World);
         transform.RotateAround(pos, Vector3.forward, angle);
 
-        StartCoroutine(delay());
-    }
-
-    IEnumerator delay()
-    {
-        yield return new WaitForSeconds(0.2f);
-
         int temp = temp_width;
         temp_width = temp_height;
         temp_height = temp; 
-        float size = GameManager.Instance.blockSize;
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)

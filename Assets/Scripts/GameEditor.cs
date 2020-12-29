@@ -26,6 +26,38 @@ public class GameEditor : MonoBehaviour
     private void Awake()
     {
         blockSize = blockSize / piexlPerUnit;
+        
+        string path = Application.persistentDataPath + "/Resources";
+        if (Directory.Exists(path))
+        {
+            DirectoryInfo direction = new DirectoryInfo(path);
+            FileInfo[] files = direction.GetFiles("*", SearchOption.AllDirectories);
+
+            for (int i = 0; i < files.Length; i++)
+            {
+                Debug.Log("Name:" + files[i].Name);
+                Debug.Log("FullName:" + files[i].FullName);
+                Debug.Log("DirectoryName:" + files[i].DirectoryName);
+                StreamReader reader = new StreamReader(Application.persistentDataPath+"/Resources/"+files[i].Name, false);
+                try
+                {
+                    var text = reader.ReadToEnd();
+                    LevelInfo info = JsonUtility.FromJson<LevelInfo>(text);
+                    levelDatas.Add(info);
+                }
+                finally
+                {
+                    reader.Close();
+                    reader.Dispose();
+                }
+            }
+        }
+        var textAssets = Resources.LoadAll<TextAsset>("");
+        foreach (var textAsset in textAssets)
+        {
+            LevelInfo info = JsonUtility.FromJson<LevelInfo>(textAsset.text);
+            levelDatas.Add(info);
+        }
     }
 #if UNITY_EDITOR
     [UnityEditor.MenuItem("Assets/Open PersistentDataPath")]
@@ -49,6 +81,60 @@ public class GameEditor : MonoBehaviour
         isDelet = true;
     }
     
+    private List<LevelInfo> levelDatas = new List<LevelInfo>();
+    private string[] prefabDir = new[]
+    {
+        "",
+        "MainBlock",
+        "HollBlock",
+        "WallBlock",
+        "HorizontalBlock",
+        "VerticalBlock",
+        "RotateLeftBlock",
+        "RotateRightBlock",
+        "WaterBlock",
+        "FatBlock",
+        "GasBlock",
+    };
+    public void OnLoadBtnClick()
+    {
+        bool finddata = false;
+        foreach (var levelData in levelDatas)
+        {
+            if (levelData.filename == filename.text)
+            {
+                rawData = new List<BlockInfo>(levelData.blockInfos);
+                finddata = true;
+                break;
+            }
+        }
+
+        if (!finddata) return;
+        
+        mapContainer.gameObject.SetActive(true);
+
+        var ie = golist.GetEnumerator();
+        while (ie.MoveNext())
+        {
+            Destroy(ie.Current.Value);
+        }
+        ie.Dispose();
+        
+        for (int i = 0; i < rawData.Count; i++)
+        {
+            BlockInfo info = rawData[i];
+            
+            GameObject go = Instantiate(Resources.Load<GameObject>(prefabDir[(int)info.type]));
+            float x = info.col * blockSize + blockSize / 2;
+            float y = info.row * blockSize + blockSize / 2;
+            go.transform.SetParent(mapContainer);
+            go.transform.localPosition = new Vector3(x, y, 0);
+            PositionToCoordinate( go.transform.localPosition, out int row, out int col);
+            CoordinateToArrayIndex(row, col, out int index);
+            golist[index] = go;
+
+        }
+    }
     public void OnSaveBtnClick()
     {
         var str = JsonUtility.ToJson(new LevelInfo()
@@ -56,15 +142,8 @@ public class GameEditor : MonoBehaviour
             filename = filename.text,
             blockInfos = rawData.ToArray(),
         });
-        string path = "";
-#if UNITY_EDITOR
-        path = Application.dataPath+"/Resources";
-#else
-        path = Application.persistentDataPath+"/Resources";
-        if (!Directory.Exists(path))
-            Directory.CreateDirectory(path);
-#endif
-        StreamWriter writer = new StreamWriter(path+"/"+filename.text, false);
+        
+        StreamWriter writer = new StreamWriter(GetPath()+"/"+filename.text, false);
         try
         {
             writer.Write(str);
@@ -77,6 +156,18 @@ public class GameEditor : MonoBehaviour
 #if UNITY_EDITOR
         UnityEditor.AssetDatabase.Refresh();
 #endif
+    }
+    string GetPath()
+    {
+        string path = "";
+#if UNITY_EDITOR
+        path = Application.dataPath+"/Resources";
+#else
+        path = Application.persistentDataPath+"/Resources";
+        if (!Directory.Exists(path))
+            Directory.CreateDirectory(path);
+#endif
+        return path;
     }
     // Update is called once per frame
     void Update()

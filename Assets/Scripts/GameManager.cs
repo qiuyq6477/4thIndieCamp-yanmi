@@ -50,14 +50,14 @@ public class GameManager : MonoBehaviour
             width = 1,
             height = 1,
         },
-        new BlockInfo()
-        {
-            type = BLOCKTYPE.Holl,
-            row = 4,
-            col = 4,
-            width = 1,
-            height = 1,
-        },
+        // new BlockInfo()
+        // {
+        //     type = BLOCKTYPE.Holl,
+        //     row = 4,
+        //     col = 4,
+        //     width = 1,
+        //     height = 1,
+        // },
         new BlockInfo()
         {
             type = BLOCKTYPE.RotateLeft,
@@ -82,18 +82,18 @@ public class GameManager : MonoBehaviour
             width = 2,
             height = 2,
         },
+        // new BlockInfo()
+        // {
+        //     type = BLOCKTYPE.Horizontal,
+        //     row = 7,
+        //     col = 2,
+        //     width = 2,
+        //     height = 1,
+        // },
         new BlockInfo()
         {
             type = BLOCKTYPE.Horizontal,
-            row = 7,
-            col = 2,
-            width = 2,
-            height = 1,
-        },
-        new BlockInfo()
-        {
-            type = BLOCKTYPE.Horizontal,
-            row = 9,
+            row = 13,
             col = 2,
             width = 2,
             height = 1,
@@ -101,7 +101,7 @@ public class GameManager : MonoBehaviour
         new BlockInfo()
         {
             type = BLOCKTYPE.Vertical,
-            row = 13,
+            row = 9,
             col = 2,
             width = 1,
             height = 2,
@@ -138,7 +138,7 @@ public class GameManager : MonoBehaviour
     public float piexlPerUnit = 100;
     public float blockSize = 90;
     public float moveUnit;
-    private Player player;
+    public Player player;
     private List<Block> otherBlocks = new List<Block>();
     private List<Vector3> targetBlocks = new List<Vector3>();
     
@@ -146,6 +146,9 @@ public class GameManager : MonoBehaviour
     private List<LevelInfo> levelDatas = new List<LevelInfo>();
     
     Stack<Operation> operations = new Stack<Operation>();
+
+    public Material activeBlock;
+    public Material unactiveBlock;
     
     private void Awake()
     {
@@ -419,6 +422,11 @@ public class GameManager : MonoBehaviour
                         }
                     }
                 }
+
+                if (info.type == BLOCKTYPE.Fat || info.type == BLOCKTYPE.Horizontal || info.type == BLOCKTYPE.Vertical)
+                {
+                    block.GetComponentInChildren<SpriteRenderer>().material = unactiveBlock;
+                }
                 otherBlocks.Add(block);
             }
         }
@@ -474,9 +482,9 @@ public class GameManager : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.RightArrow)) {
             player.MoveBlock(MOVEDIR.Right);
         }
-        // if (Input.GetKeyDown(KeyCode.UpArrow)) {
-        //     player.MoveBlock(MOVEDIR.Up);
-        // }
+        if (Input.GetKeyDown(KeyCode.UpArrow)) {
+            player.MoveBlock(MOVEDIR.Up);
+        }
         if (Input.GetKeyDown(KeyCode.DownArrow)) {
             player.MoveBlock(MOVEDIR.Down);
         }
@@ -563,7 +571,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        if (targetBlocks.Count == count)
+        if (count != 0 && targetBlocks.Count == count)
         {
             return true;
         }
