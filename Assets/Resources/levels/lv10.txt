@@ -1,0 +1,1 @@
+{"filename":"分离.txt","blockInfos":[{"type":2,"row":0,"col":6,"width":1,"height":1},{"type":2,"row":1,"col":5,"width":1,"height":1},{"type":2,"row":2,"col":5,"width":1,"height":1},{"type":6,"row":7,"col":6,"width":1,"height":1},{"type":1,"row":18,"col":4,"width":1,"height":1},{"type":4,"row":15,"col":5,"width":2,"height":1}]}

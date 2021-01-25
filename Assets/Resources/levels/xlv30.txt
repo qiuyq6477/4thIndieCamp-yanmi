@@ -1,0 +1,1 @@
+{"filename":"lv300.txt","blockInfos":[{"type":4,"row":8,"col":5,"width":2,"height":1},{"type":6,"row":6,"col":4,"width":1,"height":1},{"type":1,"row":14,"col":4,"width":1,"height":1},{"type":2,"row":10,"col":5,"width":1,"height":1},{"type":2,"row":10,"col":6,"width":1,"height":1}]}

@@ -143,7 +143,7 @@ public class GameEditor : MonoBehaviour
             blockInfos = rawData.ToArray(),
         });
         
-        StreamWriter writer = new StreamWriter(GetPath()+"/"+filename.text, false);
+        StreamWriter writer = new StreamWriter(GetPath()+"/levels/"+filename.text, false);
         try
         {
             writer.Write(str);

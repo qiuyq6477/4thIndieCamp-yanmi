@@ -1,0 +1,1 @@
+{"filename":"save.txt","blockInfos":[{"type":1,"row":12,"col":1,"width":1,"height":1},{"type":1,"row":12,"col":6,"width":1,"height":1},{"type":1,"row":9,"col":4,"width":1,"height":1},{"type":2,"row":1,"col":6,"width":1,"height":1},{"type":2,"row":0,"col":3,"width":1,"height":1},{"type":2,"row":1,"col":1,"width":1,"height":1},{"type":3,"row":11,"col":3,"width":1,"height":1}]}

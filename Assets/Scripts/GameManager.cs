@@ -35,7 +35,7 @@ public struct BlockInfo
     public int width, height;
 }
 
-
+//todo:冰冻机制 接触到的猫重新睡着
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
@@ -509,9 +509,9 @@ public class GameManager : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.RightArrow)) {
             player.MoveBlock(MOVEDIR.Right);
         }
-        if (Input.GetKeyDown(KeyCode.UpArrow)) {
-            player.MoveBlock(MOVEDIR.Up);
-        }
+        // if (Input.GetKeyDown(KeyCode.UpArrow)) {
+        //     player.MoveBlock(MOVEDIR.Up);
+        // }
         if (Input.GetKeyDown(KeyCode.DownArrow)) {
             player.MoveBlock(MOVEDIR.Down);
         }

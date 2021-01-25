@@ -1,0 +1,1 @@
+{"filename":"猫猫睡觉.txt","blockInfos":[{"type":5,"row":11,"col":5,"width":1,"height":2},{"type":6,"row":7,"col":5,"width":1,"height":1},{"type":2,"row":0,"col":3,"width":1,"height":1},{"type":2,"row":0,"col":4,"width":1,"height":1},{"type":2,"row":0,"col":5,"width":1,"height":1},{"type":1,"row":18,"col":5,"width":1,"height":1}]}

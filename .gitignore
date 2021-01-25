@@ -71,3 +71,8 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+windows/
+Assets/Resources/关卡测试.zip
+NekoUnionTetris.zip
+关卡备份.zip
+Assets/Resources/关卡测试.zip.meta
